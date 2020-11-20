@@ -1,0 +1,312 @@
+<template>
+  <div>
+    <canvas id="canvas" :width="canvasWidth" :height="canvasHeight"/>
+    <div class="coordConfig">
+      <h3>配置坐标系</h3>
+      <p>---请选择高度差距大的高度标注线---</p>
+      <button @click="configCoordinate1">拾取坐标1</button>
+      <button @click="configCoordinate2">拾取坐标2</button>
+      <h3>配置测压管位置</h3>
+      <p>---点击按钮开始配置---</p>
+      <button @click="configPosition">配置测压管</button>
+    </div>
+
+
+
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: "test",
+  data(){
+    return {
+      canvasWidth:1300,
+      canvasHeight:260,
+      canvas:null,
+      ctx:null,
+      img:new Image(),
+
+      img1:{
+        id:1,
+        url:'/btb.png',
+      },
+
+      imgScale:0.7, //canvas加载图片缩放比
+      imageConfig:{
+        y1:0, //真实坐标y1
+        y1C:0,//canvas坐标y1
+        y2:0, //真实坐标y2
+        y2C:0,//canvas坐标y2
+        M:[]
+      },
+
+      //已知测压管信息
+      pTubeData:[
+        {
+          id:'1',
+          yTop:0,
+          yBot:0,
+          yWat:0
+        },
+        {
+          id:'2',
+          yTop:0,
+          yBot:0,
+          yWat:0
+        },
+        {
+          id:'3',
+          yTop:0,
+          yBot:0,
+          yWat:0
+        },
+        {
+          id:'4',
+          yTop:0,
+          yBot:0,
+          yWat:0
+        }
+      ],
+
+      // 图片被放大区域的中心点，也是放大镜的中心点
+      centerPoint: {
+        x: 200,
+        y: 200
+      },
+      // 图片被放大区域的半径
+      originalRadius: 100,
+      // 图片被放大区域
+      originalRectangle: {},
+      // 放大倍数
+      scale: 3,
+      // 放大后区域
+      scaleGlassRectangle: null,
+    }
+  },
+
+  methods: {
+    drawBackGround(url) {
+      this.img.src = url // 设置图片源地址
+      this.img.onload = () => {
+        const w = this.img.width*this.imgScale;
+        const h = this.img.height*this.imgScale;
+        this.ctx.drawImage(this.img, 0, 0, w, h)
+      }
+    },
+    addListener() {
+      let that = this
+      // 鼠标移动事件
+      this.canvas.onmousemove = function(e) {
+        that.centerPoint = that.getXY(e)
+        that.draw()
+      }
+    },
+    configCoordinate1(){
+      this.addListener()
+      let that = this
+      this.canvas.onclick = function(e) {
+        const point = that.getXY(e)
+        that.submitConfig1(point)
+
+      }
+    },
+    configCoordinate2(){
+      this.addListener()
+      let that = this
+      this.canvas.onclick = function(e) {
+        const point = that.getXY(e)
+        that.submitConfig2(point)
+      }
+    },
+    configPosition(){
+      this.addListener()
+      let that = this
+      this.canvas.onclick = function(e) {
+        const point = that.getXY(e)
+        that.submitPosition(point)
+        console.log(that.pTubeData)
+      }
+    },
+    submitConfig1(point) {
+      this.$prompt('请输入当前高程(m)', '拾取坐标1',{
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /[1-9]\d*/,
+        inputErrorMessage: '请输入高程(单位：米)'
+      }).then(({value}) => {
+        this.$message({
+          type: 'success',
+          message: '当前输入的高程为: ' + value + 'm'
+        })
+        this.canvas.onclick = null
+        this.canvas.onmousemove = null
+        this.drawBackGround(this.img1.url)
+
+        //计算imageConfig
+        this.imageConfig.y1C = point.y //canvas画布y坐标
+        this.imageConfig.y1 = value //真实y坐标
+        console.log(this.imageConfig)
+
+        console.log(point)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '取消输入'
+        })
+      })
+    },
+    submitConfig2(point) {
+      this.$prompt('请输入当前高程(m)', '拾取坐标2',{
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /[1-9]\d*/,
+        inputErrorMessage: '请输入高程(单位：米)'
+      }).then(({value}) => {
+        this.$message({
+          type: 'success',
+          message: '当前输入的高程为: ' + value + 'm'
+        })
+        this.canvas.onclick = null
+        this.canvas.onmousemove = null
+        this.drawBackGround(this.img1.url)
+
+        //计算imageConfig
+        this.imageConfig.y2C = point.y //canvas画布y坐标
+        this.imageConfig.y2 = value //真实y坐标
+        console.log(this.imageConfig)
+
+
+        console.log(point)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '取消输入'
+        })
+      })
+    },
+    submitPosition(point){
+      this.$prompt('请输入当前测压管id', '测压管位置配置',{
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /[1-9]\d*/,
+        inputErrorMessage: '请输入正确的id'
+      }).then(({value}) => {
+        this.$message({
+          type: 'success',
+          message: '当前输入的测压管id为: ' + value
+        })
+        this.canvas.onclick = null
+        this.canvas.onmousemove = null
+        this.pTubeData.forEach((val)=>{
+          if(val.id === value){
+            val.x = point.x;
+            val.y = point.y;
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '取消输入'
+        })
+      })
+    },
+    getXY(e) {
+      return { 'x': e.offsetX, 'y': e.offsetY }
+
+    },
+    draw() {
+      // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+      this.drawBackGround(this.img1.url)
+      this.calOriginalRectangle(this.centerPoint)
+      this.drawMagnifyingGlass()
+    },
+    calOriginalRectangle(point) {
+      this.originalRectangle.x = point.x - this.originalRadius
+      this.originalRectangle.y = point.y - this.originalRadius
+      this.originalRectangle.width = this.originalRadius * 2
+      this.originalRectangle.height = this.originalRadius * 2
+    },
+    drawMagnifyingGlass() {
+      this.scaleGlassRectangle = {
+        x: this.centerPoint.x - this.originalRectangle.width * this.scale / 2,
+        y: this.centerPoint.y - this.originalRectangle.height * this.scale / 2,
+        width: this.originalRectangle.width * this.scale,
+        height: this.originalRectangle.height * this.scale
+      }
+      this.ctx.save()
+      this.ctx.beginPath()
+      // 绘制一个圆形
+      this.ctx.arc(this.centerPoint.x, this.centerPoint.y, this.originalRadius, 0, Math.PI * 2, false)
+      this.ctx.clip()
+
+      this.ctx.drawImage(this.canvas,
+          this.originalRectangle.x, this.originalRectangle.y,
+          this.originalRectangle.width, this.originalRectangle.height,
+          this.scaleGlassRectangle.x, this.scaleGlassRectangle.y,
+          this.scaleGlassRectangle.width, this.scaleGlassRectangle.height
+      )
+      this.ctx.restore()
+
+      this.ctx.beginPath()
+
+      // 创建放射状/圆形渐变对象
+      let gradient = this.ctx.createRadialGradient(
+          this.centerPoint.x, this.centerPoint.y, this.originalRadius - 5,
+          this.centerPoint.x, this.centerPoint.y, this.originalRadius)
+      gradient.addColorStop(0, 'rgba(0,0,0,0.2)')
+      gradient.addColorStop(0.80, 'silver')
+      gradient.addColorStop(0.90, 'silver')
+      gradient.addColorStop(1.0, 'rgba(150,150,150,0.9)')
+
+      this.ctx.strokeStyle = gradient
+      this.ctx.lineWidth = 5
+      this.ctx.arc(this.centerPoint.x, this.centerPoint.y, this.originalRadius, 0, Math.PI * 2, false)
+      this.ctx.stroke()
+    },
+  },
+  mounted() {
+    this.canvas = document.getElementById('canvas')
+    this.ctx = this.canvas.getContext('2d')
+    this.drawBackGround(this.img1.url, this.canvasWidth, this.canvasHeight)
+    console.log(this.canvas)
+
+  },
+}
+
+
+
+</script>
+
+<style scoped>
+#canvas {
+  display: block;
+  border: 1px solid red;
+  margin: 0 auto;
+  cursor: crosshair;
+}
+.coordConfig {
+  text-align: center;
+}
+</style>
+
+4.3 === -181
+13.3 === -136px
+16 === -120px
+22.3 === -89px
+29.5 === -54px
+30.3 === -50px
+
+1m = 5.92
+1m = 5
+1m = 5.12
+1m = 4.875
+
+(x0,y0) = (0, -214.8)
+
+13.3k+b=-136
+16k+b=-120
+
+k=5.92592
+b=-214.6148
