@@ -11,15 +11,13 @@
       <h3>2.配置测压管位置</h3>
       <p>---点击按钮开始配置---</p>
       <button @click="configPosition">配置测压管</button>
+
       <h3>3.绘制测压管</h3>
       <p>---点击按钮绘制测压管---</p>
       <button @click="plotTube">绘制测压管</button>
       <button @click="plotLevel">绘制浸水线</button>
       <button @click="draw">重新绘制</button>
     </div>
-
-
-
   </div>
 </template>
 
@@ -55,7 +53,7 @@ export default {
         }
       },
 
-      //模拟测压管信息
+      //模拟测压管位置信息
       pTubeData:[
         {
           id:'1',
@@ -118,7 +116,7 @@ export default {
       }
     },
 
-    //配置坐标系
+    //拾取两个点的坐标
     configCoordinate1(){
       this.addListener()
       let that = this
@@ -135,16 +133,6 @@ export default {
         that.submitConfig2(point)
       }
     },
-    configPosition(){
-      this.addListener()
-      let that = this
-      this.canvas.onclick = function(e) {
-        const point = that.getXY(e)
-        that.submitPosition(point)
-        console.log(that.pTubeData)
-      }
-    },
-
     submitConfig1(point) {
       this.$prompt('请输入当前高程(m)', '拾取坐标1',{
         confirmButtonText: '确定',
@@ -202,6 +190,29 @@ export default {
         })
       })
     },
+
+    //配置坐标系转换参数
+    submitCoord(){
+      let b1 =  this.imageConfig.y2C;
+      let b2 =  this.imageConfig.y1C;
+      let a1 =  this.imageConfig.y2;
+      let a2 =  this.imageConfig.y1;
+
+      this.imageConfig.M.yk = (b1-b2)/(a1-a2)
+      this.imageConfig.M.yb = b2 - a2 * this.imageConfig.M.yk
+      console.log(this.imageConfig)
+    },
+
+    //配置测压管位置
+    configPosition(){
+      this.addListener()
+      let that = this
+      this.canvas.onclick = function(e) {
+        const point = that.getXY(e)
+        that.submitPosition(point)
+        console.log(that.pTubeData)
+      }
+    },
     submitPosition(point){
       this.$prompt('请输入当前测压管id', '测压管位置配置',{
         confirmButtonText: '确定',
@@ -228,16 +239,8 @@ export default {
         })
       })
     },
-    submitCoord(){
-      let b1 =  this.imageConfig.y2C;
-      let b2 =  this.imageConfig.y1C;
-      let a1 =  this.imageConfig.y2;
-      let a2 =  this.imageConfig.y1;
 
-      this.imageConfig.M.yk = (b1-b2)/(a1-a2)
-      this.imageConfig.M.yb = b2 - a2 * this.imageConfig.M.yk
-      console.log(this.imageConfig)
-    },
+    //获取鼠标坐标
     getXY(e) {
       return { 'x': e.offsetX, 'y': e.offsetY }
 
@@ -312,6 +315,8 @@ export default {
         this.ctx.stroke()
       })
     },
+
+    //绘制浸润线
     plotLevel(){
       let yWat = [];
 
@@ -329,7 +334,7 @@ export default {
        let x = this.pTubeData[i].x,
            y = Number(yWatC[i]);
        this.ctx.lineTo(x,y);
-     }
+      }
       this.ctx.lineWidth = 2;
       this.ctx.lineCap = 'round';
       this.ctx.strokeStyle = 'blue';
@@ -345,8 +350,6 @@ export default {
   },
 }
 
-
-
 </script>
 
 <style scoped>
@@ -360,23 +363,3 @@ export default {
   text-align: center;
 }
 </style>
-
-4.3 === -181
-13.3 === -136px
-16 === -120px
-22.3 === -89px
-29.5 === -54px
-30.3 === -50px
-
-1m = 5.92
-1m = 5
-1m = 5.12
-1m = 4.875
-
-(x0,y0) = (0, -214.8)
-
-13.3k+b=-136
-16k+b=-120
-
-k=5.92592
-b=-214.6148
