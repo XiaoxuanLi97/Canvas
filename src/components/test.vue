@@ -2,13 +2,20 @@
   <div>
     <canvas id="canvas" :width="canvasWidth" :height="canvasHeight"/>
     <div class="coordConfig">
-      <h3>配置坐标系</h3>
+      <h3>1.配置坐标系</h3>
       <p>---请选择高度差距大的高度标注线---</p>
       <button @click="configCoordinate1">拾取坐标1</button>
       <button @click="configCoordinate2">拾取坐标2</button>
-      <h3>配置测压管位置</h3>
+      <button @click="submitCoord">配置坐标</button>
+
+      <h3>2.配置测压管位置</h3>
       <p>---点击按钮开始配置---</p>
       <button @click="configPosition">配置测压管</button>
+      <h3>3.绘制测压管</h3>
+      <p>---点击按钮绘制测压管---</p>
+      <button @click="plotTube">绘制测压管</button>
+      <button @click="plotLevel">绘制浸水线</button>
+      <button @click="draw">重新绘制</button>
     </div>
 
 
@@ -22,51 +29,57 @@ export default {
   name: "test",
   data(){
     return {
+      //canvas绘制数据
       canvasWidth:1300,
       canvasHeight:260,
       canvas:null,
       ctx:null,
       img:new Image(),
 
+      //图片数据
       img1:{
         id:1,
         url:'/btb.png',
       },
-
       imgScale:0.7, //canvas加载图片缩放比
+
+      //配置坐标系数据
       imageConfig:{
         y1:0, //真实坐标y1
         y1C:0,//canvas坐标y1
         y2:0, //真实坐标y2
         y2C:0,//canvas坐标y2
-        M:[]
+        M: {  //坐标转换参数
+          yk: 1,
+          yb: 0
+        }
       },
 
-      //已知测压管信息
+      //模拟测压管信息
       pTubeData:[
         {
           id:'1',
-          yTop:0,
-          yBot:0,
-          yWat:0
+          yTop:30.3,
+          yBot:9.16,
+          yWat:22.66
         },
         {
           id:'2',
-          yTop:0,
-          yBot:0,
-          yWat:0
+          yTop:30.3,
+          yBot:7.97,
+          yWat:12.73
         },
         {
           id:'3',
-          yTop:0,
-          yBot:0,
-          yWat:0
+          yTop:23.05,
+          yBot:9.16,
+          yWat:13.72
         },
         {
           id:'4',
-          yTop:0,
-          yBot:0,
-          yWat:0
+          yTop:16.9,
+          yBot:7.97,
+          yWat:12.73
         }
       ],
 
@@ -87,6 +100,7 @@ export default {
   },
 
   methods: {
+    //绘图
     drawBackGround(url) {
       this.img.src = url // 设置图片源地址
       this.img.onload = () => {
@@ -103,13 +117,14 @@ export default {
         that.draw()
       }
     },
+
+    //配置坐标系
     configCoordinate1(){
       this.addListener()
       let that = this
       this.canvas.onclick = function(e) {
         const point = that.getXY(e)
         that.submitConfig1(point)
-
       }
     },
     configCoordinate2(){
@@ -129,6 +144,7 @@ export default {
         console.log(that.pTubeData)
       }
     },
+
     submitConfig1(point) {
       this.$prompt('请输入当前高程(m)', '拾取坐标1',{
         confirmButtonText: '确定',
@@ -145,11 +161,12 @@ export default {
         this.drawBackGround(this.img1.url)
 
         //计算imageConfig
+
         this.imageConfig.y1C = point.y //canvas画布y坐标
         this.imageConfig.y1 = value //真实y坐标
+
         console.log(this.imageConfig)
 
-        console.log(point)
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -175,10 +192,9 @@ export default {
         //计算imageConfig
         this.imageConfig.y2C = point.y //canvas画布y坐标
         this.imageConfig.y2 = value //真实y坐标
+
         console.log(this.imageConfig)
 
-
-        console.log(point)
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -212,10 +228,22 @@ export default {
         })
       })
     },
+    submitCoord(){
+      let b1 =  this.imageConfig.y2C;
+      let b2 =  this.imageConfig.y1C;
+      let a1 =  this.imageConfig.y2;
+      let a2 =  this.imageConfig.y1;
+
+      this.imageConfig.M.yk = (b1-b2)/(a1-a2)
+      this.imageConfig.M.yb = b2 - a2 * this.imageConfig.M.yk
+      console.log(this.imageConfig)
+    },
     getXY(e) {
       return { 'x': e.offsetX, 'y': e.offsetY }
 
     },
+
+    //放大镜
     draw() {
       // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
       this.drawBackGround(this.img1.url)
@@ -265,6 +293,48 @@ export default {
       this.ctx.arc(this.centerPoint.x, this.centerPoint.y, this.originalRadius, 0, Math.PI * 2, false)
       this.ctx.stroke()
     },
+
+    //绘制测压管
+    plotTube(){
+      this.pTubeData.forEach((val)=>{
+        let x = val.x, //需要在网页中配置
+            k = this.imageConfig.M.yk,
+            b = this.imageConfig.M.yb,
+            yTop = val.yTop * k + b,
+            yBot = val.yBot * k + b
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(x,yBot);
+        this.ctx.lineTo(x,yTop);
+        this.ctx.lineWidth = 2;
+        this.ctx.lineCap = 'round';
+        this.ctx.strokeStyle = 'red';
+        this.ctx.stroke()
+      })
+    },
+    plotLevel(){
+      let yWat = [];
+
+      for ( let i=0; i<this.pTubeData.length;i++){
+       yWat.push(this.pTubeData[i].yWat)
+      }
+
+      let yWatC = yWat.map(n => n*this.imageConfig.M.yk+this.imageConfig.M.yb)
+
+      const x0 = this.pTubeData[0].x;
+      const y0 = yWatC[0];
+      this.ctx.beginPath();
+      this.ctx.moveTo(x0,y0);
+      for ( let i=1; i<this.pTubeData.length;i++){
+       let x = this.pTubeData[i].x,
+           y = Number(yWatC[i]);
+       this.ctx.lineTo(x,y);
+     }
+      this.ctx.lineWidth = 2;
+      this.ctx.lineCap = 'round';
+      this.ctx.strokeStyle = 'blue';
+      this.ctx.stroke()
+    }
   },
   mounted() {
     this.canvas = document.getElementById('canvas')
