@@ -48,7 +48,7 @@ export default {
         y2:0, //真实坐标y2
         y2C:0,//canvas坐标y2
         M: {  //坐标转换参数
-          yk: 1,
+          yk: 0,
           yb: 0
         }
       },
@@ -200,6 +200,13 @@ export default {
 
       this.imageConfig.M.yk = (b1-b2)/(a1-a2)
       this.imageConfig.M.yb = b2 - a2 * this.imageConfig.M.yk
+
+      if(a1 !== a2){
+        this.$message.success('坐标配置成功')
+      }
+      else {
+        this.$message.error('请重新拾取坐标')
+      }
       console.log(this.imageConfig)
     },
 
