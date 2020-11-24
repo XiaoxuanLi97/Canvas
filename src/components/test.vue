@@ -40,6 +40,8 @@ export default {
         id:1,
         url:'/btb.png',
       },
+
+      testUrl:'/test.jpg',
       imgScale:0.7, //canvas加载图片缩放比
 
       //配置坐标系数据
@@ -115,14 +117,19 @@ export default {
   },
 
   mounted() {
-    // this.handle()
     this.canvas = document.getElementById('canvas')
     this.ctx = this.canvas.getContext('2d')
-    // this.ctx.fillRect(0,0,100,200)
-    this.drawBackGround(this.img1.url)
-    // this.img.src = this.img1.url
-    // this.ctx.drawImage(this.img, 0, 0, 1300, 260)
-    console.log(this.img1.url)
+
+
+
+    this.img.src = this.img1.url // 设置图片源地址
+    setTimeout(()=>{
+      let w = this.img.width*this.imgScale;
+      let h = this.img.height*this.imgScale;
+      this.ctx.drawImage(this.img, 0, 0, w, h)
+    },10)
+
+    console.log(this.canvas)
   },
   methods: {
 
@@ -140,9 +147,9 @@ export default {
     drawBackGround(url) {
       this.img.src = url // 设置图片源地址
       // this.img.onload = () => {
-        let w = this.img.width*this.imgScale;
-        let h = this.img.height*this.imgScale;
-        this.ctx.drawImage(this.img, 0, 0, w, h)
+      let w = this.img.width*this.imgScale;
+      let h = this.img.height*this.imgScale;
+      this.ctx.drawImage(this.img, 0, 0, w, h)
       // }
     },
 
@@ -185,7 +192,7 @@ export default {
       this.ctx.stroke()
     },
     draw() {
-      // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+      // this.ctx.clearRect(0, 0, this.canvas2.width, this.canvas2.height)
       this.drawBackGround(this.img1.url)
       this.calOriginalRectangle(this.centerPoint)
       this.drawMagnifyingGlass()
