@@ -113,12 +113,16 @@ export default {
       scaleGlassRectangle: null,
     }
   },
+
   mounted() {
     // this.handle()
     this.canvas = document.getElementById('canvas')
     this.ctx = this.canvas.getContext('2d')
+    // this.ctx.fillRect(0,0,100,200)
     this.drawBackGround(this.img1.url)
-    console.log(this.canvas)
+    // this.img.src = this.img1.url
+    // this.ctx.drawImage(this.img, 0, 0, 1300, 260)
+    console.log(this.img1.url)
   },
   methods: {
 
