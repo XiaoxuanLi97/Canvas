@@ -38,7 +38,7 @@ export default {
       //图片数据
       img1:{
         id:1,
-        url:'/btb.png',
+        url:'/crossSection.png',
       },
 
       testUrl:'/test.jpg',
@@ -115,19 +115,17 @@ export default {
       scaleGlassRectangle: null,
     }
   },
-
-  mounted() {
+  mounted(){
     this.canvas = document.getElementById('canvas')
     this.ctx = this.canvas.getContext('2d')
 
-
-
     this.img.src = this.img1.url // 设置图片源地址
+    let w = this.img.width*this.imgScale;
+    let h = this.img.height*this.imgScale;
+
     setTimeout(()=>{
-      let w = this.img.width*this.imgScale;
-      let h = this.img.height*this.imgScale;
       this.ctx.drawImage(this.img, 0, 0, w, h)
-    },10)
+    },100)
 
     console.log(this.canvas)
   },
@@ -249,8 +247,6 @@ export default {
         this.imageConfig.y1C = point.y //canvas画布y坐标
         this.imageConfig.y1 = value //真实y坐标
 
-        console.log(this.imageConfig)
-
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -277,7 +273,6 @@ export default {
         this.imageConfig.y2C = point.y //canvas画布y坐标
         this.imageConfig.y2 = value //真实y坐标
 
-        console.log(this.imageConfig)
 
       }).catch(() => {
         this.$message({
