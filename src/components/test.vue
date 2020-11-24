@@ -33,15 +33,12 @@ export default {
       canvas:null,
       ctx:null,
       img:new Image(),
-      timer:'',
 
       //图片数据
-      img1:{
+      img1: {
         id:1,
-        url:'/crossSection.png',
+        url:'/crossSection.png'
       },
-
-      testUrl:'/test.jpg',
       imgScale:0.7, //canvas加载图片缩放比
 
       //配置坐标系数据
@@ -125,7 +122,7 @@ export default {
 
     setTimeout(()=>{
       this.ctx.drawImage(this.img, 0, 0, w, h)
-    },100)
+    },10)
 
     console.log(this.canvas)
   },
@@ -138,7 +135,6 @@ export default {
     //获取鼠标坐标
     getXY(e) {
       return { 'x': e.offsetX, 'y': e.offsetY }
-
     },
 
     //绘图
@@ -308,7 +304,6 @@ export default {
       this.canvas.onclick = function(e) {
         const point = that.getXY(e)
         that.submitPosition(point)
-        console.log(that.pTubeData)
       }
     },
     submitPosition(point){
@@ -332,6 +327,7 @@ export default {
             val.y = point.y;
           }
         })
+        console.log(this.pTubeData)
       }).catch(() => {
         this.$message({
           type: 'info',
