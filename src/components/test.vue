@@ -1,4 +1,4 @@
-<<template>
+<template>
   <div>
     <canvas id="canvas" :width="canvasWidth" :height="canvasHeight"/>
     <div class="coordConfig">
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-
+import url from '../assets/img/crossSection.png'
 export default {
   name: "test",
   data(){
@@ -36,9 +36,10 @@ export default {
 
       //图片数据
       img1: {
-        id:1,
-        url:'/crossSection.png'
+        id:'1',
+        url: url
       },
+
       imgScale:0.7, //canvas加载图片缩放比
 
       //配置坐标系数据
@@ -115,22 +116,17 @@ export default {
   mounted(){
     this.canvas = document.getElementById('canvas')
     this.ctx = this.canvas.getContext('2d')
-
-    this.img.src = this.img1.url // 设置图片源地址
-    let w = this.img.width*this.imgScale;
-    let h = this.img.height*this.imgScale;
+    this.img.src = url // 设置图片源地址
 
     setTimeout(()=>{
+      let w = this.img.width*this.imgScale;
+      let h = this.img.height*this.imgScale;
       this.ctx.drawImage(this.img, 0, 0, w, h)
-    },10)
+    },150)
 
     console.log(this.canvas)
   },
   methods: {
-
-    // handle(){
-    //   this.timer = new Date().getTime()
-    // },
 
     //获取鼠标坐标
     getXY(e) {
@@ -138,8 +134,8 @@ export default {
     },
 
     //绘图
-    drawBackGround(url) {
-      this.img.src = url // 设置图片源地址
+    drawBackGround(imgUrl) {
+      this.img.src = imgUrl // 设置图片源地址
       // this.img.onload = () => {
       let w = this.img.width*this.imgScale;
       let h = this.img.height*this.imgScale;
@@ -404,3 +400,4 @@ export default {
   text-align: center;
 }
 </style>
+
