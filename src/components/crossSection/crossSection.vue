@@ -39,7 +39,8 @@ export default {
       canvas:null,
       ctx:null,
 
-      img:new Image(),
+      img:new Image(), //放大镜绘制的背景
+      img2:new Image(), //进入网页的背景
       imgScale:0.7, //canvas加载图片缩放比
 
       //配置坐标系数据
@@ -72,13 +73,18 @@ export default {
   mounted(){
     this.canvas = document.getElementById('canvas')
     this.ctx = this.canvas.getContext('2d')
-    this.img.src = this.img1.url
 
-    setTimeout(()=>{
-         let w = this.img.width*this.imgScale;
-         let h = this.img.height*this.imgScale;
-         this.ctx.drawImage(this.img, 0, 0, w, h)
-    },200)
+    this.img2.src = this.img1.url
+    this.img2.onload = () => {
+      let w = this.img2.width*this.imgScale;
+      let h = this.img2.height*this.imgScale;
+      this.ctx.drawImage(this.img2, 0, 0, w, h)
+    }
+    // setTimeout(()=>{
+    //      let w = this.img.width*this.imgScale;
+    //      let h = this.img.height*this.imgScale;
+    //      this.ctx.drawImage(this.img, 0, 0, w, h)
+    // },150)
 
     console.log(this.canvas)
   },
