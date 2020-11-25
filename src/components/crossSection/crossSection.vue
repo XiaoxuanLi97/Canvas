@@ -2,6 +2,7 @@
   <div>
     <canvas id="canvas" :width="canvasWidth" :height="canvasHeight"/>
     <div class="coordConfig">
+      <br>
       <h3>1.配置坐标系</h3>
       <p>---请选择高度差距大的高度标注线---</p>
       <button @click="configCoordinate1">拾取坐标1</button>
@@ -10,7 +11,7 @@
 
       <h3>2.配置测压管位置</h3>
       <p>---点击按钮开始配置---</p>
-      <button @click="configPosition">配置测压管</button>
+      <button @click="configPosition">拾取测压管位置</button>
 
       <h3>3.绘制测压管</h3>
       <p>---点击按钮绘制测压管---</p>
@@ -22,9 +23,14 @@
 </template>
 
 <script>
-import url from '../assets/img/crossSection.png'
 export default {
   name: "test",
+  props:{
+    pTubeData:Array,
+    pTubeWat:Array,
+    img1:Array
+  },
+
   data(){
     return {
       //canvas绘制数据
@@ -32,14 +38,8 @@ export default {
       canvasHeight:260,
       canvas:null,
       ctx:null,
+
       img:new Image(),
-
-      //图片数据
-      img1: {
-        id:'1',
-        url: url
-      },
-
       imgScale:0.7, //canvas加载图片缩放比
 
       //配置坐标系数据
@@ -53,50 +53,6 @@ export default {
           yb: 0
         }
       },
-
-      //模拟测压管位置信息
-      pTubeData:[
-        {
-          id:'1',
-          yTop:30.3,
-          yBot:9.16,
-        },
-        {
-          id:'2',
-          yTop:30.3,
-          yBot:7.97,
-        },
-        {
-          id:'3',
-          yTop:23.05,
-          yBot:9.16,
-        },
-        {
-          id:'4',
-          yTop:16.9,
-          yBot:7.97,
-        },
-      ],
-
-      //浸润线
-      pTubeWat:[
-        {
-          id:'1',
-          yWat:22.66
-        },
-        {
-          id:'2',
-          yWat:12.73
-        },
-        {
-          id:'3',
-          yWat:13.72
-        },
-        {
-          id:'4',
-          yWat:12.73
-        },
-      ],
 
       // 图片被放大区域的中心点，也是放大镜的中心点
       centerPoint: {
@@ -116,18 +72,17 @@ export default {
   mounted(){
     this.canvas = document.getElementById('canvas')
     this.ctx = this.canvas.getContext('2d')
-    this.img.src = url // 设置图片源地址
+    this.img.src = this.img1.url
 
     setTimeout(()=>{
-      let w = this.img.width*this.imgScale;
-      let h = this.img.height*this.imgScale;
-      this.ctx.drawImage(this.img, 0, 0, w, h)
-    },150)
+         let w = this.img.width*this.imgScale;
+         let h = this.img.height*this.imgScale;
+         this.ctx.drawImage(this.img, 0, 0, w, h)
+    },200)
 
     console.log(this.canvas)
   },
   methods: {
-
     //获取鼠标坐标
     getXY(e) {
       return { 'x': e.offsetX, 'y': e.offsetY }
@@ -182,10 +137,11 @@ export default {
       this.ctx.stroke()
     },
     draw() {
-      // this.ctx.clearRect(0, 0, this.canvas2.width, this.canvas2.height)
       this.drawBackGround(this.img1.url)
       this.calOriginalRectangle(this.centerPoint)
       this.drawMagnifyingGlass()
+
+
     },
     calOriginalRectangle(point) {
       this.originalRectangle.x = point.x - this.originalRadius
