@@ -74,6 +74,7 @@ export default {
     this.canvas = document.getElementById('canvas')
     this.ctx = this.canvas.getContext('2d')
 
+    //加载背景
     this.img2.src = this.img1.url
     this.img2.onload = () => {
       let w = this.img2.width*this.imgScale;
@@ -238,10 +239,10 @@ export default {
 
     //配置坐标系转换参数
     submitCoord(){
-      let b1 =  this.imageConfig.y2C;
-      let b2 =  this.imageConfig.y1C;
-      let a1 =  this.imageConfig.y2;
-      let a2 =  this.imageConfig.y1;
+      let b1 =  this.imageConfig.y2C,
+          b2 =  this.imageConfig.y1C,
+          a1 =  this.imageConfig.y2,
+          a2 =  this.imageConfig.y1;
 
       this.imageConfig.M.yk = (b1-b2)/(a1-a2)
       this.imageConfig.M.yb = b2 - a2 * this.imageConfig.M.yk
@@ -249,9 +250,9 @@ export default {
       if(a1 !== a2){
         this.$message.success('坐标配置成功')
       }
-      else
+      else {
         this.$message.error('请重新拾取坐标')
-
+      }
       console.log(this.imageConfig)
     },
 
@@ -264,7 +265,7 @@ export default {
         that.submitPosition(point)
       }
     },
-    submitPosition(point){
+    submitPosition(point) {
       this.$prompt('请输入当前测压管id', '测压管位置配置',{
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -314,7 +315,7 @@ export default {
     },
 
     //绘制浸润线
-    plotLevel(){
+    plotLevel() {
 
       let yWat = [];
 
